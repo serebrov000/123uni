@@ -99,6 +99,9 @@ public class PlayerAttack : MonoBehaviour
                 {
                     enemy.TakeDamage(meleeDamage);
                     Debug.Log($"🗡️ Удар по врагу! Урон: {meleeDamage}");
+                    
+                    // Show damage number
+                    DamageNumber.ShowDamage(hit.transform.position, meleeDamage, Color.white);
                 }
             }
         }

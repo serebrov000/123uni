@@ -53,6 +53,9 @@ public class Bullet : MonoBehaviour
                 enemy.TakeDamage(damage);
             }
 
+            // Show damage number
+            DamageNumber.ShowDamage(other.transform.position, damage, Color.cyan);
+
             Destroy(gameObject);
             return;
         }
@@ -64,6 +67,9 @@ public class Bullet : MonoBehaviour
             {
                 player.TakeDamage(damage);
             }
+
+            // Show damage number on player
+            DamageNumber.ShowDamage(transform.position, damage, Color.red);
 
             Destroy(gameObject);
             return;

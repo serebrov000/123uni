@@ -170,11 +170,94 @@ public class Enemy : MonoBehaviour
         isDead = true;
         Debug.Log("💀 Враг уничтожен!");
         GameManager.Instance?.AddScore(scoreReward);
+        
+        // Add kill to achievements
+        Achievements.Instance?.AddKill();
+        
+        // Add to combo system
+        ComboSystem.Instance?.AddKill();
+        
+        // Show damage number on death
+        DamageNumber.ShowDamage(transform.position, scoreReward, Color.yellow);
+        
+        // Screen shake on enemy death
+        if (ScreenShake.Instance != null)
+        {
+            ScreenShake.Instance.Shake(0.3f, 0.2f);
+        }
+        
+        // Particle effect on death
+        ParticleSystemSimple[] particleSystems = FindObjectsOfType<ParticleSystemSimple>();
+        foreach (var ps in particleSystems)
+        {
+            ps.Emit(transform.position, Vector3.up, 15);
+        }
+        
+        // Chance to drop coin
+        if (Random.value < 0.5f) // 50% chance
+        {
+            DropCoin();
+        }
+        
+        // Chance to drop health
+        if (Random.value < 0.2f && PlayerHealth.Instance != null && PlayerHealth.Instance.currentHealth < PlayerHealth.Instance.maxHealth)
+        {
+            DropHealth();
+        }
+        
+        // Chance to drop weapon
+        if (Random.value < 0.1f) // 10% chance
+        {
+            DropWeapon();
+        }
+        
         if (spriteRenderer != null) spriteRenderer.color = Color.gray;
         Collider2D enemyCollider = GetComponent<Collider2D>();
         if (enemyCollider != null) enemyCollider.enabled = false;
         if (rb != null) rb.linearVelocity = Vector2.zero;
         Destroy(gameObject, 0.5f);
+    }
+    
+    void DropCoin()
+    {
+        GameObject coin = new GameObject("Coin");
+        coin.transform.position = transform.position + new Vector3(0, 0.5f, 0);
+        coin.AddComponent<Coin>();
+        Debug.Log("💰 Coin dropped!");
+    }
+    
+    void DropHealth()
+    {
+        GameObject health = new GameObject("HealthPickup");
+        health.transform.position = transform.position + new Vector3(0, 0.5f, 0);
+        health.AddComponent<HealthPickup>();
+        Debug.Log("❤️ Health dropped!");
+    }
+    
+    void DropWeapon()
+    {
+        GameObject weapon = new GameObject("WeaponPickup");
+        weapon.transform.position = transform.position + new Vector3(0, 0.5f, 0);
+        
+        WeaponPickup wp = weapon.AddComponent<WeaponPickup>();
+        wp.weaponName = GetRandomWeaponName();
+        wp.damageBonus = Random.Range(3, 8);
+        wp.attackSpeedBonus = Random.Range(0.1f, 0.3f);
+        wp.weaponColor = GetRandomWeaponColor();
+        
+        Debug.Log($"⚔️ Weapon dropped: {wp.weaponName}!");
+    }
+    
+    string GetRandomWeaponName()
+    {
+        string[] names = { "Fire Sword", "Ice Bow", "Lightning Staff", "Shadow Dagger", "Holy Hammer" };
+        return names[Random.Range(0, names.Length)];
+    }
+    
+    Color GetRandomWeaponColor()
+    {
+        Color[] colors = { Color.red, Color.cyan, Color.yellow, Color.magenta, Color.white };
+        return colors[Random.Range(0, colors.Length)];
     }
 
     void TryRangedAttack()

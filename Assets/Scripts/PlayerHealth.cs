@@ -12,7 +12,19 @@ public class PlayerHealth : MonoBehaviour
     private SpriteRenderer _spriteRenderer;
     private PlayerMovement movement;
     private PlayerAttack attack;
-
+    
+    public static PlayerHealth Instance { get; private set; }
+    
+    void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+    }
+    
     void Start()
     {
         currentHealth = maxHealth;
@@ -30,12 +42,56 @@ public class PlayerHealth : MonoBehaviour
         currentHealth -= amount;
         Debug.Log($"👤 Урон! Здоровье: {currentHealth}/{maxHealth}");
         
+        // Add to achievements
+        Achievements.Instance?.TakeDamage(amount);
+        
+        // Show damage number
+        DamageNumber.ShowDamage(transform.position, amount, Color.red);
+        
+        // Screen shake on damage
+        if (ScreenShake.Instance != null)
+        {
+            ScreenShake.Instance.Shake(0.4f, 0.3f);
+        }
+        
         StartCoroutine(InvincibilityCoroutine());
         
         if (currentHealth <= 0)
         {
             Die();
         }
+        GameManager.Instance?.UpdateHealthUI();
+    }
+    
+    public void Heal(int amount)
+    {
+        currentHealth = Mathf.Min(maxHealth, currentHealth + amount);
+        Debug.Log($"💚 Лечение! Здоровье: {currentHealth}/{maxHealth}");
+        
+        // Show heal effect
+        GameObject healEffect = new GameObject("HealEffect");
+        healEffect.transform.position = transform.position;
+        
+        ParticleSystem particles = healEffect.AddComponent<ParticleSystem>();
+        var main = particles.main;
+        main.startColor = Color.green;
+        main.startSize = 0.3f;
+        main.startSpeed = 1f;
+        main.emissionRate = 15;
+        main.gravityModifier = 0f;
+        main.maxParticles = 20;
+        
+        var emission = particles.emission;
+        emission.enabled = true;
+        emission.rateOverTime = 15;
+        
+        var shape = particles.shape;
+        shape.shapeType = ParticleSystemShapeType.Sphere;
+        shape.radius = 0.5f;
+        
+        particles.Play();
+        Destroy(healEffect, 1f);
+        
         GameManager.Instance?.UpdateHealthUI();
     }
 
