@@ -46,6 +46,14 @@ public class LevelManager : MonoBehaviour
 
     void Start()
     {
+        // Ensure camera exists
+        if (Camera.main == null)
+        {
+            GameObject camObj = new GameObject("Main Camera");
+            camObj.AddComponent<Camera>();
+            camObj.transform.position = new Vector3(0, 0, -10);
+        }
+        
         SetupLevel(currentLevelIndex);
     }
 
@@ -85,6 +93,9 @@ public class LevelManager : MonoBehaviour
                 bgObject.transform.position = new Vector3(0, 0, 10);
                 backgroundRenderer = bgObject.AddComponent<SpriteRenderer>();
                 backgroundRenderer.sortingOrder = -10;
+                
+                // Set sprite size to cover the screen
+                bgObject.transform.localScale = new Vector3(20, 15, 1);
             }
             else
             {
@@ -102,16 +113,44 @@ public class LevelManager : MonoBehaviour
         {
             backgroundRenderer.sprite = levelSprite;
             backgroundRenderer.color = Color.white;
+            
+            // Adjust scale for sprite
+            backgroundRenderer.gameObject.transform.localScale = new Vector3(20, 15, 1);
         }
         else
         {
             // Use solid color if no sprite available
             backgroundRenderer.sprite = null;
             backgroundRenderer.color = levelColors[currentLevelIndex];
+            
+            // Create a simple colored quad for background
+            if (backgroundRenderer.gameObject.GetComponent<MeshFilter>() == null)
+            {
+                MeshFilter meshFilter = backgroundRenderer.gameObject.AddComponent<MeshFilter>();
+                Mesh mesh = new Mesh();
+                mesh.vertices = new Vector3[] {
+                    new Vector3(-10, -7.5f, 0),
+                    new Vector3(10, -7.5f, 0),
+                    new Vector3(10, 7.5f, 0),
+                    new Vector3(-10, 7.5f, 0)
+                };
+                mesh.triangles = new int[] { 0, 1, 2, 0, 2, 3 };
+                meshFilter.mesh = mesh;
+                
+                MeshRenderer meshRenderer = backgroundRenderer.gameObject.AddComponent<MeshRenderer>();
+                Material mat = new Material(Shader.Find("Sprites/Default"));
+                mat.color = levelColors[currentLevelIndex];
+                meshRenderer.material = mat;
+                
+                Destroy(backgroundRenderer);
+            }
         }
 
         // Also set camera background color
-        Camera.main.backgroundColor = levelColors[currentLevelIndex];
+        if (Camera.main != null)
+        {
+            Camera.main.backgroundColor = levelColors[currentLevelIndex];
+        }
     }
 
     Sprite GetBackgroundSpriteForLevel(LevelType levelType)
