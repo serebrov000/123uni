@@ -90,6 +90,9 @@ public class HealthPickup : MonoBehaviour
         // Heal player
         playerHealth.Heal(healAmount);
         
+        // Add to achievements
+        Achievements.Instance?.CollectItem();
+        
         Debug.Log($"Collected health! +{healAmount} HP");
         
         // Show collection effect

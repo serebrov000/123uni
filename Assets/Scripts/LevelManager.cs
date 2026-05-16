@@ -197,11 +197,19 @@ public class LevelManager : MonoBehaviour
         {
             // All levels completed!
             _levelTransitioning = true;
+            
+            // Add to achievements
+            Achievements.Instance?.CompleteLevel();
+            
             GameManager.Instance?.ShowGameWin();
             return;
         }
 
         _levelTransitioning = true;
+        
+        // Add to achievements
+        Achievements.Instance?.CompleteLevel();
+        
         StartCoroutine(TransitionToLevel(nextLevelIndex));
     }
 

@@ -171,8 +171,27 @@ public class Enemy : MonoBehaviour
         Debug.Log("💀 Враг уничтожен!");
         GameManager.Instance?.AddScore(scoreReward);
         
+        // Add kill to achievements
+        Achievements.Instance?.AddKill();
+        
+        // Add to combo system
+        ComboSystem.Instance?.AddKill();
+        
         // Show damage number on death
         DamageNumber.ShowDamage(transform.position, scoreReward, Color.yellow);
+        
+        // Screen shake on enemy death
+        if (ScreenShake.Instance != null)
+        {
+            ScreenShake.Instance.Shake(0.3f, 0.2f);
+        }
+        
+        // Particle effect on death
+        ParticleSystemSimple[] particleSystems = FindObjectsOfType<ParticleSystemSimple>();
+        foreach (var ps in particleSystems)
+        {
+            ps.Emit(transform.position, Vector3.up, 15);
+        }
         
         // Chance to drop coin
         if (Random.value < 0.5f) // 50% chance

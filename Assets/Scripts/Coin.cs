@@ -89,6 +89,9 @@ public class Coin : MonoBehaviour
         // Add score
         GameManager.Instance?.AddScore(coinValue);
         
+        // Add to achievements
+        Achievements.Instance?.AddCoin(coinValue);
+        
         Debug.Log($"Collected coin! +{coinValue} points");
         
         // Show collection effect

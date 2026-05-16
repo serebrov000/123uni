@@ -65,10 +65,19 @@ public class WeaponPickup : MonoBehaviour
         playerAttack.damage += damageBonus;
         playerAttack.attackCooldown = Mathf.Max(0.1f, playerAttack.attackCooldown - attackSpeedBonus);
         
+        // Add to achievements
+        Achievements.Instance?.CollectItem();
+        
         Debug.Log($"Collected {weaponName}! Damage +{damageBonus}, Attack Speed +{attackSpeedBonus}");
         
         // Show pickup effect
         ShowPickupEffect();
+        
+        // Screen shake
+        if (ScreenShake.Instance != null)
+        {
+            ScreenShake.Instance.Shake(0.2f, 0.15f);
+        }
         
         // Destroy after effect
         Destroy(gameObject, 0.5f);

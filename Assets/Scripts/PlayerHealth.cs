@@ -42,8 +42,17 @@ public class PlayerHealth : MonoBehaviour
         currentHealth -= amount;
         Debug.Log($"👤 Урон! Здоровье: {currentHealth}/{maxHealth}");
         
+        // Add to achievements
+        Achievements.Instance?.TakeDamage(amount);
+        
         // Show damage number
         DamageNumber.ShowDamage(transform.position, amount, Color.red);
+        
+        // Screen shake on damage
+        if (ScreenShake.Instance != null)
+        {
+            ScreenShake.Instance.Shake(0.4f, 0.3f);
+        }
         
         StartCoroutine(InvincibilityCoroutine());
         
